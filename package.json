@@ -1,0 +1,32 @@
+{
+  "name": "reactive-state-box",
+  "version": "0.1.0",
+  "description": "",
+  "main": "dist/ReactiveStateBox.umd.js",
+  "typings": "dist/ReactiveStateBox.d.ts",
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Riim/ReactiveStateBox.git"
+  },
+  "author": "Dmitry Vibe",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Riim/ReactiveStateBox/issues"
+  },
+  "homepage": "https://github.com/Riim/ReactiveStateBox#readme",
+  "devDependencies": {
+    "@riim/enumerable-decorator": "^1.0.0",
+    "type-fest": "^0.12.0",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "@riim/keypath": "^1.2.0",
+    "@riim/log": "^1.0.1",
+    "cellx": "^1.10.2",
+    "omyumyum": "^0.5.5"
+  }
+}
