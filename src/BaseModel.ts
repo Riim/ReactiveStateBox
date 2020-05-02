@@ -1,4 +1,5 @@
 import { NonEnumerable } from '@riim/enumerable-decorator';
+import { nextUID } from '@riim/next-uid';
 import { Cell, EventEmitter } from 'cellx';
 
 let cloned: Map<string, BaseModel> | null = null;
@@ -8,8 +9,10 @@ export class BaseModel extends EventEmitter {
 	@NonEnumerable
 	$original: this;
 
+	id: string | undefined;
+
 	get $id(): string {
-		return (this.$original as any).id;
+		return this.$original.id!;
 	}
 
 	_fixedChanges: this | undefined;
@@ -20,15 +23,15 @@ export class BaseModel extends EventEmitter {
 	}
 
 	clone(): this {
-		let notCloned = !cloned;
+		let c = !cloned;
 
-		if (notCloned) {
+		if (c) {
 			cloned = new Map();
 		}
 
 		let result = this._clone();
 
-		if (notCloned) {
+		if (c) {
 			cloned = null;
 		}
 
@@ -36,13 +39,13 @@ export class BaseModel extends EventEmitter {
 	}
 
 	_clone(): this {
-		let id = this.$id;
+		let id = this.$original.id;
 
 		if (id && cloned!.has(id)) {
 			return cloned!.get(id) as any;
 		}
 
-		let copy = new (this.constructor as any)();
+		let copy: BaseModel = new (this.constructor as any)();
 
 		if (id) {
 			cloned!.set(id, copy);
@@ -60,13 +63,13 @@ export class BaseModel extends EventEmitter {
 			}
 
 			if (name == 'id') {
-				copy.id = value === (this.$id as any) ? `copy[${value}]` : value;
+				copy.id = `copy-${nextUID()}-[${value}]`;
 			} else if (
 				typeof value != 'function' &&
 				!(value instanceof Cell) &&
-				value !== copy[name]
+				value !== (copy as any)[name]
 			) {
-				copy[name] =
+				(copy as any)[name] =
 					value && typeof value == 'object' && (value as any).clone
 						? (value as any).clone.length
 							? (value as any).clone(true)
@@ -77,7 +80,7 @@ export class BaseModel extends EventEmitter {
 
 		copy.$original = this.$original;
 
-		return copy;
+		return copy as this;
 	}
 
 	absorbFrom(that: BaseModel): boolean {

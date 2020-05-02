@@ -25,6 +25,7 @@
     "@riim/enumerable-decorator": "^1.0.0",
     "@riim/keypath": "^1.2.0",
     "@riim/log": "^1.0.1",
+    "@riim/next-uid": "^1.1.0",
     "cellx": "^1.10.2",
     "omyumyum": "^0.5.5",
     "type-fest": "^0.12.0"

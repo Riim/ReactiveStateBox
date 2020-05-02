@@ -15,7 +15,7 @@ export class ReactiveStateBox {
     get(type, id) {
         let models = this._models.get(type);
         return Array.isArray(id)
-            ? id.map(id => (models && models.get(id)) || null)
+            ? id.map((id) => (models && models.get(id)) || null)
             : (models && models.get(id)) || null;
     }
     getAll(type) {
@@ -34,7 +34,8 @@ export class ReactiveStateBox {
         models.set(model.$id, model.$original);
         return this;
     }
-    model(type, data, prevModel) {
+    model(type, data, model, _prevModel) {
+        var _a, _b;
         if (Array.isArray(data)) {
             let arrLength = data.length;
             let arr = new Array(arrLength);
@@ -49,11 +50,8 @@ export class ReactiveStateBox {
             models = new Map();
             this._models.set(type, models);
         }
-        let id = dataFields &&
-            dataFields.id &&
-            dataFields.id.keypath !== undefined &&
-            keypath(dataFields.id.keypath, data);
-        if (dataFields && dataFields.id && dataFields.id.validate) {
+        let id = ((_a = dataFields === null || dataFields === void 0 ? void 0 : dataFields.id) === null || _a === void 0 ? void 0 : _a.keypath) !== undefined && keypath(dataFields.id.keypath, data);
+        if ((_b = dataFields === null || dataFields === void 0 ? void 0 : dataFields.id) === null || _b === void 0 ? void 0 : _b.validate) {
             try {
                 om(dataFields.id.validate, id);
             }
@@ -66,16 +64,25 @@ export class ReactiveStateBox {
                 });
             }
         }
-        let model = id && models.get(id);
-        if (!model) {
-            if (!id && prevModel) {
-                model = prevModel;
+        if (model) {
+            if (id && !model.id) {
+                model.id = id;
+                model.$original = model;
+                models.set(id, model);
             }
-            else {
-                model = new type();
-                if (id) {
-                    model.id = id;
-                    models.set(id, model);
+        }
+        else {
+            model = id && models.get(id);
+            if (!model) {
+                if (!id && _prevModel) {
+                    model = _prevModel;
+                }
+                else {
+                    model = new type();
+                    if (id) {
+                        model.id = id;
+                        models.set(id, model);
+                    }
                 }
             }
         }
@@ -147,22 +154,29 @@ export class ReactiveStateBox {
         }
         return model.fixChanges();
     }
-    discard(type, id) {
-        let models = this._models.get(type);
-        if (models && models.size) {
-            if (arguments.length == 1) {
+    discard(typeOrModel, id) {
+        if (typeof typeOrModel == 'function') {
+            let models = this._models.get(typeOrModel);
+            if (models === null || models === void 0 ? void 0 : models.size) {
+                if (id) {
+                    return models.delete(id);
+                }
                 models.clear();
                 return true;
             }
-            return models.delete(id);
+        }
+        else {
+            let models = this._models.get(typeOrModel.constructor);
+            if (models === null || models === void 0 ? void 0 : models.size) {
+                return models.delete(typeOrModel.id);
+            }
         }
         return false;
     }
     clear() {
+        var _a;
         this._models = new Map();
-        if (this.initialize) {
-            this.initialize();
-        }
+        (_a = this.initialize) === null || _a === void 0 ? void 0 : _a.call(this);
         return this;
     }
 }

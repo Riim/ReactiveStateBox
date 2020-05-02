@@ -1,6 +1,7 @@
 import { EventEmitter } from 'cellx';
 export declare class BaseModel extends EventEmitter {
     $original: this;
+    id: string | undefined;
     get $id(): string;
     _fixedChanges: this | undefined;
     constructor();

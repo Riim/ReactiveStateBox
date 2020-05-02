@@ -26,7 +26,7 @@ export class ReactiveStateBox {
 		let models = this._models.get(type as any);
 
 		return Array.isArray(id)
-			? id.map(id => (models && models.get(id)) || null)
+			? id.map((id) => (models && models.get(id)) || null)
 			: (models && models.get(id)) || null;
 	}
 
@@ -55,8 +55,9 @@ export class ReactiveStateBox {
 
 	model<T extends BaseModel | Array<BaseModel>>(
 		type: IModelClass,
-		data: Record<string, any>,
-		prevModel?: BaseModel | null
+		data: Record<string, any> | Array<Record<string, any>>,
+		model?: BaseModel,
+		_prevModel?: BaseModel | null
 	): T {
 		if (Array.isArray(data)) {
 			let arrLength = data.length;
@@ -78,12 +79,9 @@ export class ReactiveStateBox {
 		}
 
 		let id =
-			dataFields &&
-			dataFields.id &&
-			dataFields.id.keypath !== undefined &&
-			keypath(dataFields.id.keypath as string, data);
+			dataFields?.id?.keypath !== undefined && keypath(dataFields.id.keypath as string, data);
 
-		if (dataFields && dataFields.id && dataFields.id.validate) {
+		if (dataFields?.id?.validate) {
 			try {
 				om(dataFields.id.validate, id);
 			} catch (err) {
@@ -96,17 +94,25 @@ export class ReactiveStateBox {
 			}
 		}
 
-		let model = id && models.get(id);
+		if (model) {
+			if (id && !model.id) {
+				model.id = id;
+				model.$original = model;
+				models.set(id, model);
+			}
+		} else {
+			model = id && models.get(id);
 
-		if (!model) {
-			if (!id && prevModel) {
-				model = prevModel;
-			} else {
-				model = new (type as any)();
+			if (!model) {
+				if (!id && _prevModel) {
+					model = _prevModel;
+				} else {
+					model = new (type as any)();
 
-				if (id) {
-					(model as any).id = id;
-					models.set(id, model!);
+					if (id) {
+						model!.id = id;
+						models.set(id, model!);
+					}
 				}
 			}
 		}
@@ -131,7 +137,7 @@ export class ReactiveStateBox {
 				);
 
 				if (value === null && dataField.placeholder !== undefined) {
-					(model as any)[name] =
+					model![name] =
 						typeof dataField.placeholder == 'function'
 							? dataField.placeholder()
 							: clone(dataField.placeholder);
@@ -140,7 +146,7 @@ export class ReactiveStateBox {
 				}
 
 				if (value === undefined && dataField.default !== undefined) {
-					(model as any)[name] =
+					model![name] =
 						typeof dataField.default == 'function'
 							? dataField.default()
 							: clone(dataField.default);
@@ -194,16 +200,26 @@ export class ReactiveStateBox {
 		return model!.fixChanges() as T;
 	}
 
-	discard(type: Function, id?: any): boolean {
-		let models = this._models.get(type as any);
+	discard(type: Function, id?: any): boolean;
+	discard(model: BaseModel): boolean;
+	discard(typeOrModel: Function | BaseModel, id?: any): boolean {
+		if (typeof typeOrModel == 'function') {
+			let models = this._models.get(typeOrModel as IModelClass);
 
-		if (models && models.size) {
-			if (arguments.length == 1) {
+			if (models?.size) {
+				if (id) {
+					return models.delete(id);
+				}
+
 				models.clear();
 				return true;
 			}
+		} else {
+			let models = this._models.get(typeOrModel.constructor as IModelClass);
 
-			return models.delete(id);
+			if (models?.size) {
+				return models.delete(typeOrModel.id);
+			}
 		}
 
 		return false;
@@ -211,10 +227,7 @@ export class ReactiveStateBox {
 
 	clear(): this {
 		this._models = new Map();
-
-		if (this.initialize) {
-			this.initialize();
-		}
+		this.initialize?.();
 
 		return this;
 	}

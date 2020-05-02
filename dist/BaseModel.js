@@ -5,6 +5,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 import { NonEnumerable } from '@riim/enumerable-decorator';
+import { nextUID } from '@riim/next-uid';
 import { Cell, EventEmitter } from 'cellx';
 let cloned = null;
 let absorbed = null;
@@ -17,18 +18,18 @@ export class BaseModel extends EventEmitter {
         return this.$original.id;
     }
     clone() {
-        let notCloned = !cloned;
-        if (notCloned) {
+        let c = !cloned;
+        if (c) {
             cloned = new Map();
         }
         let result = this._clone();
-        if (notCloned) {
+        if (c) {
             cloned = null;
         }
         return result;
     }
     _clone() {
-        let id = this.$id;
+        let id = this.$original.id;
         if (id && cloned.has(id)) {
             return cloned.get(id);
         }
@@ -45,7 +46,7 @@ export class BaseModel extends EventEmitter {
                 continue;
             }
             if (name == 'id') {
-                copy.id = value === this.$id ? `copy[${value}]` : value;
+                copy.id = `copy-${nextUID()}-[${value}]`;
             }
             else if (typeof value != 'function' &&
                 !(value instanceof Cell) &&
