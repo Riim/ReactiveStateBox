@@ -129,16 +129,11 @@ export class ReactiveStateBox {
                     continue;
                 }
                 if (value !== null) {
-                    if (typeof value == 'object') {
-                        if (dataField.build) {
-                            value = dataField.build(value, data, model);
-                        }
-                        if (dataField.type) {
-                            value = this.model(dataField.type(), value, model[name]);
-                        }
-                    }
-                    else if (dataField.build) {
+                    if (dataField.build) {
                         value = dataField.build(value, data, model);
+                    }
+                    if (typeof value == 'object' && dataField.type) {
+                        value = this.model(dataField.type(), value, model[name]);
                     }
                     if (dataField.wrapper) {
                         value =
@@ -148,7 +143,17 @@ export class ReactiveStateBox {
                     }
                 }
                 if (model[name] !== value) {
-                    model[name] = value;
+                    if (value &&
+                        typeof value == 'object' &&
+                        typeof value.absorbFrom == 'function' &&
+                        model[name] &&
+                        typeof model[name] == 'object' &&
+                        value.absorbFrom == model[name].absorbFrom) {
+                        model[name].absorbFrom(value);
+                    }
+                    else {
+                        model[name] = value;
+                    }
                 }
             }
         }
