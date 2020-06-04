@@ -3,13 +3,13 @@ import { Class } from 'type-fest';
 
 export interface IDataField {
 	keypath?: string | ((data: Record<string, any>, model: Object) => string);
-	validate?: TValidator;
-	wrapper?: Class;
-	wrap?: (value: any) => any;
-	type?: () => IModelClass;
 	placeholder?: any;
 	default?: any;
+	validate?: TValidator;
 	build?: (value: any, data: Record<string, any>, model: Object) => any;
+	type?: () => IModelClass;
+	wrapper?: Class;
+	wrap?: (value: any) => any;
 }
 
 export interface IDataFields {
@@ -22,13 +22,13 @@ export interface IModelClass extends Class {
 
 export interface IOptions<T = Object> {
 	keypath?: string | ((data: Record<string, any>, model: T) => string);
-	validate?: TValidator;
-	wrapper?: Class;
-	wrap?: (value: any) => any;
-	type?: () => IModelClass;
 	placeholder?: any;
 	default?: any;
+	validate?: TValidator;
 	build?: (value: any, data: Record<string, any>, model: T) => any;
+	type?: () => IModelClass;
+	wrapper?: Class;
+	wrap?: (value: any) => any;
 }
 
 function getDataFields(modelCtor: IModelClass): IDataFields {
