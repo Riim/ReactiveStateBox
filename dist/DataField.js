@@ -61,8 +61,8 @@ export function DataField(arg1, arg2, options) {
             if (options.default !== undefined) {
                 dataField.default = options.default;
             }
-            if (options.build) {
-                dataField.build = options.build;
+            if (options.buildData) {
+                dataField.buildData = options.buildData;
             }
         }
     };
