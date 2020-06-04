@@ -5,6 +5,7 @@ export interface IDataField {
 	keypath?: string | ((data: Record<string, any>, model: Object) => string);
 	validate?: TValidator;
 	wrapper?: Class;
+	wrap?: (value: any) => any;
 	type?: () => IModelClass;
 	placeholder?: any;
 	default?: any;
@@ -23,6 +24,7 @@ export interface IOptions<T = Object> {
 	keypath?: string | ((data: Record<string, any>, model: T) => string);
 	validate?: TValidator;
 	wrapper?: Class;
+	wrap?: (value: any) => any;
 	type?: () => IModelClass;
 	placeholder?: any;
 	default?: any;
