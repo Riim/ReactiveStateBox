@@ -172,8 +172,8 @@ export class ReactiveStateBox {
 				}
 
 				if (value !== null) {
-					if (dataField.build) {
-						value = dataField.build(value, data, model!);
+					if (dataField.buildData) {
+						value = dataField.buildData(value, data, model!);
 					}
 
 					if (typeof value == 'object' && dataField.type) {
